@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Edema Sensor - Android</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_record">RecordActivity</string>
+    <string name="subject_id_text">Subject ID</string>
+    <string name="experiment_id_text">Experiment ID</string>
+    <string name="activity_text">Activity</string>
+    <string name="start_recording_button_text">Start Recording</string>
+    <string-array name="activity_spinner_array">
+        <item>Laying Down</item>
+        <item>Standing</item>
+        <item>Sitting</item>
+        <item>Walking</item>
+    </string-array>
+    <string name="title_activity_recording_feed">RecordingFeedActivity</string>
+    <string name="stop_recording_text">Stop/Pause Recording</string>
+    <string name="delete_recording_button_text">Delete Recording</string>
+    <string name="save_recording_button_text">Save Recording</string>
+    <string name="delete_recording_button">Delete Recording</string>
+    <string name="save_recording_button">Save Recording</string>
+    <string name="title_activity_connect">ConnectActivity</string>
+    <string name="confirm_device">Confirm Device Selection</string>
+    <string name="choose_device_text">Automatic pairing failed. Please select the correct device from below.</string>
+    <string name="scan_for_devices_button">Rescan for Bluetooth Devices</string>
+    <string name="title_activity_test">TestActivity</string>
+</resources>

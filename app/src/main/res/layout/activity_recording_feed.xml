@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="edu.wsu.edemasensor_android.RecordingFeedActivity">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/stop_recording_text"
+            android:id="@+id/toggleRecording"
+            android:onClick="onClickToggleRecording" />
+
+        <com.github.mikephil.charting.charts.RadarChart
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/radarChart"
+            android:layout_weight="4" />
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/barChart"
+            android:layout_weight="2" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/delete_recording_button"
+                android:id="@+id/deleteRecording"
+                android:layout_gravity="bottom"
+                android:onClick="onClickDeleteRecording" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/save_recording_button"
+                android:id="@+id/saveRecording"
+                android:layout_gravity="bottom"
+                android:onClick="onClickSaveRecording" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
