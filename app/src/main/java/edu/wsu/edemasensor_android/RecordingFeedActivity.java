@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -73,7 +74,7 @@ public class RecordingFeedActivity extends AppCompatActivity {
     public RecordingFeedActivity() {
         MY_UUID = UUID.fromString("6B433250-4D32-4E15-AE2D-CB19B5FAC9CC");
         MAX_RECENT_DATA_ITEMS = 50;
-        REFRESH_RATE = 10; //milliseconds
+        REFRESH_RATE = 20; //milliseconds
         ACCELEROMETER_MAX_VALUE = 100;
         STRETCH_MAX_VALUE = 1000;
     }
@@ -105,15 +106,17 @@ public class RecordingFeedActivity extends AppCompatActivity {
             fileOutputStream.write(header.getBytes());
         }
         catch (IOException e) {
-            // TODO: Handle file failure
+            simpleAlert("Error!\n" +
+                        "Could not create file.");
+            Log.e("File", e.getMessage());
+            this.finish();
+            System.exit(0);
         }
 
         // Create Charts
         stretchChart = (BarChart) findViewById(R.id.barChart);
         accelerometerChart = (RadarChart) findViewById(R.id.radarChart);
 
-        // TODO: Restore code after test
-        /*
         // Open a Bluetooth socket
         try {
             bluetoothSocket = mSensor.createRfcommSocketToServiceRecord(MY_UUID);
@@ -121,9 +124,19 @@ public class RecordingFeedActivity extends AppCompatActivity {
         }
         catch (IOException e)
         {
-            // TODO: Handle socket/connection error
+            // Can't connect. Try fallback.
+            Log.e("BT", "Can't connect. Trying fallback.");
+            try {
+                // Work around for Android 4.2+
+                // See http://stackoverflow.com/a/25647197 for details
+                bluetoothSocket =(BluetoothSocket) mSensor.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(mSensor,1);
+                bluetoothSocket.connect();
+            }
+            catch (Exception ex) {
+                Log.e("BT", ex.getMessage());
+            }
         }
-        */
+
 
         // Initialize BarChart
         stretchChart.setTouchEnabled(false);
@@ -148,8 +161,15 @@ public class RecordingFeedActivity extends AppCompatActivity {
         handler.post(new Runnable(){
             @Override
             public void run() {
+                updateLoop:
                 if(isRecording){
                     SensorData data = getDataFrame();
+                    if (data == null) {
+                        simpleAlert("Lost device connection!\n"
+                                    +"Recording automatically paused.");
+                        isRecording = false;
+                        break updateLoop;
+                    }
 
                     recentData.add(data);
                     if (recentData.size() > MAX_RECENT_DATA_ITEMS)
@@ -159,7 +179,10 @@ public class RecordingFeedActivity extends AppCompatActivity {
                         fileOutputStream.write(data.toCsv().getBytes());
                     }
                     catch (IOException e){
-                        // TODO: Handle exception
+                        Log.e ("File", e.getMessage());
+                        simpleAlert("Error!\n" +
+                                "Could not write to file. Pausing recording.");
+                        isRecording = false;
                     }
 
                     // Update visuals
@@ -201,7 +224,7 @@ public class RecordingFeedActivity extends AppCompatActivity {
         RadarChart mRadarChart = accelerometerChart;
         radarEntries = new ArrayList<>();
 
-        SensorData mostRecentData = recentData.peek();
+        SensorData mostRecentData = recentData.getLast();
 
         // Order: Y, X, Z
         radarEntries.add(new Entry(mostRecentData.accelerometerY, 0));
@@ -294,7 +317,7 @@ public class RecordingFeedActivity extends AppCompatActivity {
         }
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-        String saveFileName = "Edema_Sensor_Recording_" + formatter.format(new Date());
+        String saveFileName = "Edema_Sensor_Recording_" + formatter.format(new Date()) + ".csv";
         // First try saving to external storage, so access via computer is possible.
         if (isExternalStorageWritable()) {
             try {
@@ -303,7 +326,10 @@ public class RecordingFeedActivity extends AppCompatActivity {
                 copyFile(tempFile, saveFile);
             }
             catch (IOException e) {
-                // TODO: Handle
+                Log.e ("File", e.getMessage());
+                simpleAlert("Error!\n" +
+                            "Could not write to file. Pausing recording.");
+                isRecording = false;
             }
         }
         else { // External storage not available. Internal it is.
@@ -313,7 +339,10 @@ public class RecordingFeedActivity extends AppCompatActivity {
                 copyFile(tempFile, saveFile);
             }
             catch (IOException e) {
-                // TODO: Handle
+                Log.e ("File", e.getMessage());
+                simpleAlert("Error!\n" +
+                        "Could not write to file. Pausing recording.");
+                isRecording = false;
             }
         }
 
@@ -340,10 +369,7 @@ public class RecordingFeedActivity extends AppCompatActivity {
     /* Checks if external storage is available for read and write */
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
+        return Environment.MEDIA_MOUNTED.equals(state);
     }
 
     void simpleAlert(String message_body) {
@@ -361,11 +387,6 @@ public class RecordingFeedActivity extends AppCompatActivity {
 
     // Returns SensorData object if able. Returns null if failure.
     protected SensorData getDataFrame() {
-        // TODO: Remove test code
-        // Begin Test code
-        return testGetDataFrame();
-        // End Test code
-        /*
         SensorData data = null;
         String dataString = "";
         InputStream inputStream;
@@ -384,13 +405,12 @@ public class RecordingFeedActivity extends AppCompatActivity {
             try {
                 dataString = new String(buffer, "UTF-8");
             }
-            catch (UnsupportedEncodingException e) {};
+            catch (UnsupportedEncodingException e) {}
 
             // Attempt to parse SensorData object from dataString
             data = stringToSensorData(dataString);
         } while (data == null);
         return data;
-        */
     }
 
     protected SensorData testGetDataFrame() {

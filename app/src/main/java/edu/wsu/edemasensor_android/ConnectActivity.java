@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.bluetooth.*;
@@ -35,8 +36,7 @@ public class ConnectActivity extends AppCompatActivity{
 
     public ConnectActivity() {
         DEVICE_PIN = "1234";
-        // TODO: Insert device name
-        DEVICE_NAME = "";
+        DEVICE_NAME = "RNBT-86E1";
         REQUEST_ENABLE_BT = 1;
         MY_UUID = UUID.fromString("6B433250-4D32-4E15-AE2D-CB19B5FAC9CC");
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -193,12 +193,18 @@ public class ConnectActivity extends AppCompatActivity{
             tmpSocket.connect();
         }
         catch (IOException e) {
-            // Can't connect. Ensure unused socket is closed.
+            // Can't connect. Try fallback.
+            Log.e("BT", "Can't connect. Trying fallback.");
             try {
-                tmpSocket.close();
+                // Work around for Android 4.2+
+                // See http://stackoverflow.com/a/25647197 for details
+                tmpSocket =(BluetoothSocket) device.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(device,1);
+                tmpSocket.connect();
             }
-            catch (IOException ex){}
-            return false;
+            catch (Exception ex) {
+                Log.e("BT", ex.getMessage());
+                return false;
+            }
         }
 
         // Connection to device is possible

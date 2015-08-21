@@ -2,9 +2,6 @@ package edu.wsu.edemasensor_android;
 
 import java.sql.Timestamp;
 
-/**
- * Created by Shane on 8/12/2015.
- */
 public class SensorData {
     public int accelerometerX;
     public int accelerometerY;
@@ -24,12 +21,11 @@ public class SensorData {
     }
 
     public String toCsv(){
-        String csv = Integer.toString(accelerometerX) + ","
+        return Integer.toString(accelerometerX) + ","
                 + Integer.toString(accelerometerY) + ","
                 + Integer.toString(accelerometerZ) + ","
                 + Integer.toString(stretch) + ","
-                + captureTime.toString();
-        return csv;
+                + captureTime.toString() + "\n";
     }
 
     public static String createCsvHeader() {
